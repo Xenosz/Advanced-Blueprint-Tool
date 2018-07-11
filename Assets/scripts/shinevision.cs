@@ -17,10 +17,4 @@ public class shinevision : MonoBehaviour {
         GO.transform.position = transform.position;
         GO.transform.rotation = transform.rotation;
     }
-
-    public void ResetPos()
-    {
-        Debug.Log("RESET");
-        transform.rotation = Quaternion.Euler(Vector3.zero);
-    }
 }
