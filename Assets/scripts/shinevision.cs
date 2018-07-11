@@ -15,6 +15,5 @@ public class shinevision : MonoBehaviour {
 	void Update ()
     {
         GO.transform.position = transform.position;
-        GO.transform.rotation = transform.rotation;
     }
 }
