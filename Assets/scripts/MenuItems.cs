@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-
+using System.Windows.Forms;
+ 
 public class MenuItems : MonoBehaviour
 {
     
@@ -10,7 +11,19 @@ public class MenuItems : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        EditorUtility.DisplayDialog("Select File", "Test2", "OK");
+
+        OpenFileDialog openFileDialog = new OpenFileDialog(); // ik hoop echt dat dit werkt
+        openFileDialog.DefaultExt = ".png";
+        openFileDialog.Filter = "png files (*.png)|*.png|jpg files (*.jpg)|*.jpg|All Files(*.*)|*.*";
+        openFileDialog.InitialDirectory = UnityEngine.Application.dataPath;
+
+        //openFileDialog.ShowDialog();
+
+        string file = openFileDialog.FileName;
+        if (file != null && file != "")
+        {
+            SettingsManager.Debug.Log(file);
+        }
     }
 	
 	// Update is called once per frame
