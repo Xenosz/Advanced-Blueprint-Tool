@@ -4,17 +4,17 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CameraManager : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerExitHandler
+public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("References")]
 
     public Camera renderCamera;
     [Space(25)]
     [Header("Settings")]
-    public float zoomStep = 1;
-    public float mouseSensitivity = 0.1f;
-    public float panSensitivity = 0.1f;
-    public float smoothing = 0.05f;
+    public float zoomStep;
+    public float mouseSensitivity;
+    public float panSensitivity;
+    public float smoothing;
     public bool onHoverRenderView = false;
     public float defaultzoom;
     Vector3 camStartPos;
@@ -69,22 +69,22 @@ public class CameraManager : MonoBehaviour, IDragHandler, IPointerEnterHandler, 
         {
             if (Input.GetMouseButtonDown(0))
             {
-                prevMousePos = Input.mousePosition;
+                prevMousePos = Input.mousePosition * mouseSensitivity;
             }
             if (Input.GetMouseButtonDown(2))
             {
-                prevMousePos = Input.mousePosition;
+                prevMousePos = Input.mousePosition * mouseSensitivity;
             }
 
             if (Input.GetMouseButton(0))
             {
-                curMousePos = Input.mousePosition;
-                CamMove += (prevMousePos - curMousePos) * mouseSensitivity; 
+                curMousePos = Input.mousePosition * mouseSensitivity;
+                CamMove += (prevMousePos - curMousePos)/2; 
             }
             if (Input.GetMouseButton(2))//middle mouse click pressed
             {
-                curMousePos = Input.mousePosition;
-                PanMove += (prevMousePos - curMousePos) * mouseSensitivity;
+                curMousePos = Input.mousePosition * mouseSensitivity;
+                PanMove += (prevMousePos - curMousePos)/2;
             }
 
             if (Input.GetAxis("Mouse ScrollWheel") > 0) // Scroll forward
@@ -122,7 +122,7 @@ public class CameraManager : MonoBehaviour, IDragHandler, IPointerEnterHandler, 
             renderCamera.transform.RotateAround(center, new Vector3(0, 1, 0), -CamMove.x);
 
             //90° top and bottom limit:
-            if(Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude>0.004 || //Extremely tiny optimized code with little math coded by a profesional.
+            if(Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude>0.006 || //Extremely tiny optimized code with little math coded by a profesional.
                 //(Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude > 0.0005 && Mathf.Abs(CamMove.y)<1) || // allow to get closer, tho only at slower pace
                 ((x<100 && CamMove.y<0 ) || (x >250 && CamMove.y > 0))  )
                 renderCamera.transform.RotateAround(center, -renderCamera.transform.right, -CamMove.y);
