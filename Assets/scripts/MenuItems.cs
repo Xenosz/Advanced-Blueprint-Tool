@@ -6,13 +6,13 @@ using System.Windows.Forms;
  
 public class MenuItems : MonoBehaviour
 {
-    
+    Logger logger = new Logger();
 
 	// Use this for initialization
 	void Start ()
     {
 
-        OpenFileDialog openFileDialog = new OpenFileDialog(); // ik hoop echt dat dit werkt
+        OpenFileDialog openFileDialog = new OpenFileDialog();
         openFileDialog.DefaultExt = ".png";
         openFileDialog.Filter = "png files (*.png)|*.png|jpg files (*.jpg)|*.jpg|All Files(*.*)|*.*";
         openFileDialog.InitialDirectory = UnityEngine.Application.dataPath;
@@ -22,7 +22,7 @@ public class MenuItems : MonoBehaviour
         string file = openFileDialog.FileName;
         if (file != null && file != "")
         {
-            SettingsManager.Debug.Log(file);
+            logger.Log(file);
         }
     }
 	

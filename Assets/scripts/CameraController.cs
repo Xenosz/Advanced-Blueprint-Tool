@@ -27,8 +27,7 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
     
     Vector3 center = Vector3.zero;
 
-
-    //Vector3 panning;
+    Logger logger = new Logger();
 
     public void OnDrag(PointerEventData eventData)
     {
@@ -37,27 +36,29 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        SettingsManager.Debug.Log("Over!");
+        logger.Log("Over!");
         onHoverRenderView = true;
         //Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        SettingsManager.Debug.Log("Exit");
+        logger.Log("Exit");
         onHoverRenderView = false;
     }
 
     // Use this for initialization
     void Start ()
 	{
-        if(!SettingsManager.settings.inDebugMode)
+        Settings settings = SettingsManager.Instance.settings;
+
+        if(!settings.inDebugMode)
         {
-            smoothing = SettingsManager.settings.smoothAmount;
-            mouseSensitivity = SettingsManager.settings.mouseSensitivity;
-            panSensitivity = SettingsManager.settings.panSensitivity;
-            zoomStep = SettingsManager.settings.zoomStep;
-            defaultzoom = SettingsManager.settings.defaultzoom;
+            smoothing = settings.smoothAmount;
+            mouseSensitivity = settings.mouseSensitivity;
+            panSensitivity = settings.panSensitivity;
+            zoomStep = settings.zoomStep;
+            defaultzoom = settings.defaultzoom;
         }
         camStartPos = renderCamera.transform.position;
     }
@@ -89,12 +90,12 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
 
             if (Input.GetAxis("Mouse ScrollWheel") > 0) // Scroll forward
             {
-                SettingsManager.Debug.Log("Scroll > 0");
+                logger.Log("Scroll > 0");
                 defaultzoom = zoomStep;
             }
             if (Input.GetAxis("Mouse ScrollWheel") < 0) // Scroll backwards
             {
-                SettingsManager.Debug.Log("Scroll < 0");
+                logger.Log("Scroll < 0");
                 defaultzoom = -zoomStep;
             }
             prevMousePos = curMousePos;
@@ -110,7 +111,10 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
 
         {
             //pan:
-            center += renderCamera.transform.TransformDirection(PanMove) * panSensitivity;
+            float x = renderCamera.transform.rotation.eulerAngles.x;
+            if (Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude > 0.006 ||
+                ((x < 100 &&PanMove.y > 0) || (x > 250 && PanMove.y < 0)))
+                center += renderCamera.transform.TransformDirection(PanMove) * panSensitivity;
             renderCamera.transform.LookAt(center);
 
             //zoom:
@@ -118,17 +122,14 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
             defaultzoom = 0;
 
             //rotate camera:
-            float x = renderCamera.transform.rotation.eulerAngles.x;
             renderCamera.transform.RotateAround(center, new Vector3(0, 1, 0), -CamMove.x);
 
             //90° top and bottom limit:
-            if(Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude>0.006 || //Extremely tiny optimized code with little math coded by a profesional.
+            x = renderCamera.transform.rotation.eulerAngles.x;
+            if (Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude>0.006 || //Extremely tiny optimized code with little math coded by a profesional.
                 //(Vector3.Cross(lookdir, new Vector3(0, 1, 0)).sqrMagnitude > 0.0005 && Mathf.Abs(CamMove.y)<1) || // allow to get closer, tho only at slower pace
                 ((x<100 && CamMove.y<0 ) || (x >250 && CamMove.y > 0))  )
                 renderCamera.transform.RotateAround(center, -renderCamera.transform.right, -CamMove.y);
-
-            //renderCamera.transform.RotateAround(center, renderCamera.transform.right, -CamMove.y); //brent zen 'fix'
-            //renderCamera.transform.RotateAround(center, Vector3.Cross(lookdir, new Vector3(0, 1, 0)) + new Vector3(0.1f,0.1f, 0), -CamMove.y); // shine verkloot het -shine
         }
         //sideways rotation lock (z):
         renderCamera.transform.rotation = Quaternion.Euler(renderCamera.transform.rotation.eulerAngles.x, renderCamera.transform.rotation.eulerAngles.y, 0);
@@ -144,7 +145,7 @@ public class CameraController : MonoBehaviour, IDragHandler, IPointerEnterHandle
     }
     public void ResetPos()
     {
-        SettingsManager.Debug.Log("Resetting the view port.");
+        logger.Log("Resetting the view port.");
         transform.rotation = Quaternion.Euler(Vector3.zero);
         prevMousePos = Vector3.zero;
         curMousePos = Vector3.zero;
